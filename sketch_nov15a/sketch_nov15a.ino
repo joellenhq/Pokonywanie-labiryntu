@@ -1,25 +1,27 @@
+int pozKoncowa=255;
+int los;
 //zmienne okreslajace wielkosc labiryntu
 int x=16,y=16;
 //zmienna okreslajaca pozycje na mapie
 int aktpole; 
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
-boolean n[256],e[256],s[256],w[256];
-
+boolean n[255],e[255],s[255],w[255];
+//byte kierunki[255];
 void lewo(){
 
-  aktpole=aktpole+y;
+  
 }
 void prawo(){
 
-  aktpole=aktpole-y;
+  
 }
 void prosto(){
 
-  aktpole++;
+  
 }
 
 void tyl(){
-  aktpole--;
+
 }
 
 void ukos(int kat){
@@ -79,10 +81,111 @@ void pomiar(int konfiguracja, int i){
   if(sensor2<15) e[i]=1;
   else e[i]=0;
   if(sensor3<15) s[i]=1;
-  else s[i]=1;
+  else s[i]=0;
   if(sensor4<15) w[i]=1;
   else w[i]=0;
   
+}
+int sprawdzenie(int i){
+  while(1){los= random(1,4);
+    switch(los) {
+      case 1:
+      if(n[i]==1){
+        return 1;
+      }
+      break;
+      case 2:
+      if(e[i]==1){
+        return 2;
+      }
+      break;
+      case 3:
+      if(s[i]==1){
+        return 3;
+      }
+      break;
+      case 4:
+      if(w[i]==1){
+        return 4;
+      }
+      break;
+  }}
+}
+
+void konfiguracja(int konfiguracja, int i){
+  int kierunek=sprawdzenie(i);
+  if(konfiguracja==0){
+    if(kierunek==1){
+      prosto();
+      aktpole++;
+    }
+    if(kierunek==2){
+      prawo();
+      aktpole=aktpole-y;
+    }
+    if(kierunek==3){
+      tyl();
+      aktpole--;
+    }
+    if(kierunek==4){
+      lewo();
+      aktpole=aktpole+y;
+    }
+  }
+  if(konfiguracja==90){
+     if(kierunek==1){
+      lewo();
+      aktpole=aktpole+y;
+    }
+    if(kierunek==2){
+      prosto();
+      aktpole++;
+    }
+    if(kierunek==3){
+      prawo();
+      aktpole=aktpole-y;
+    }
+    if(kierunek==4){
+      tyl();
+      aktpole--;
+    }
+  }
+  if(konfiguracja ==180){
+     if(kierunek==1){
+      tyl();
+      aktpole--;
+    }
+    if(kierunek==2){
+      lewo();
+      aktpole=aktpole+y;
+    }
+    if(kierunek==3){
+      prosto();
+      aktpole++;
+    }
+    if(kierunek==4){
+      prawo();
+      aktpole=aktpole-y;
+    }
+  }
+  if(konfiguracja ==270){
+     if(kierunek==1){
+      prawo();
+      aktpole=aktpole-y;
+    }
+    if(kierunek==2){
+      tyl();
+      aktpole--;
+    }
+    if(kierunek==3){
+      lewo();
+      aktpole=aktpole+y;
+    }
+    if(kierunek==4){
+      prosto();
+      aktpole++;
+    }
+  }
 }
 
 void setup() {
@@ -98,7 +201,7 @@ void setup() {
   while(j!=0){
      
     //zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
-    boolean pole[256];
+    boolean pole[255];
     //jesli pole nie zostalo wczesniej zbadane to nastepuje zebranie pomiarow
     if(pole[aktpole]=0){
       pomiar(konfiguracja,aktpole);
@@ -111,7 +214,7 @@ void setup() {
     //ustawienie licznika niezbadanych pol na zero
     j=0;
     //sprawdzenie ile pol zostalo niezbadanych
-    for(int k=0;k<256;k++){
+    for(int k=0;k<255;k++){
       if(pole[k]==0) j++;  
     }
   
