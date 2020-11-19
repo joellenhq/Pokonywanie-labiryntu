@@ -29,6 +29,8 @@ void ukos(int kat){
   
 }
 
+
+
 float czujnik1(){
   //moze byc tez int
 }
@@ -76,16 +78,41 @@ void pomiar(int konfiguracja, int i){
   }
     
   
-  if(sensor1<15) n[i]=1;
-  else n[i]=0;
-  if(sensor2<15) e[i]=1;
-  else e[i]=0;
-  if(sensor3<15) s[i]=1;
-  else s[i]=0;
-  if(sensor4<15) w[i]=1;
-  else w[i]=0;
+  if(sensor1<15){ 
+    n[i]=1;
+    s[i-y]=1;
+  }
+  else{
+    n[i]=0;
+    s[i-y]=0;
+  }
+  if(sensor2<15){
+    e[i]=1;
+    w[i+1]=1;
+  }
+  else{
+    e[i]=0;
+    w[i+1]=0;
+  }
+  if(sensor3<15){
+    s[i]=1;
+    n[i+y]=1;
+  }
+  else{
+    s[i]=0;
+    n[i+y]=0;
+  }
+  if(sensor4<15){
+    w[i]=1;
+    e[i-1]=1;
+  }
+  else{
+    w[i]=0;
+    e[i-1]=0;
+  }
   
 }
+
 int sprawdzenie(int i){
   while(1){los= random(1,4);
     switch(los) {
@@ -112,78 +139,94 @@ int sprawdzenie(int i){
   }}
 }
 
-void konfiguracja(int konfiguracja, int i){
+void konfiguracja1(int konfiguracja, int i){
   int kierunek=sprawdzenie(i);
   if(konfiguracja==0){
     if(kierunek==1){
       prosto();
-      aktpole++;
+      aktpole=aktpole-y;
+      konfiguracja=0;
     }
     if(kierunek==2){
       prawo();
-      aktpole=aktpole-y;
+      aktpole++;
+      konfiguracja=90;
     }
     if(kierunek==3){
       tyl();
-      aktpole--;
+      aktpole=aktpole+y;
+      konfiguracja=180; //lub 0
     }
     if(kierunek==4){
       lewo();
-      aktpole=aktpole+y;
+      aktpole--;
+      konfiguracja=270;
     }
   }
   if(konfiguracja==90){
      if(kierunek==1){
       lewo();
-      aktpole=aktpole+y;
+      aktpole=aktpole-y;
+      konfiguracja=0;
     }
     if(kierunek==2){
       prosto();
       aktpole++;
+      konfiguracja=90;
     }
     if(kierunek==3){
       prawo();
-      aktpole=aktpole-y;
+      aktpole=aktpole+y;
+      konfiguracja=180;
     }
     if(kierunek==4){
       tyl();
       aktpole--;
+      konfiguracja=270; //lub 90
     }
   }
   if(konfiguracja ==180){
      if(kierunek==1){
       tyl();
-      aktpole--;
+      aktpole=aktpole-y;
+      konfiguracja=0; //lub 180
     }
     if(kierunek==2){
       lewo();
-      aktpole=aktpole+y;
+      aktpole++;
+      konfiguracja=90;
     }
     if(kierunek==3){
       prosto();
-      aktpole++;
+      aktpole=aktpole+y;
+      konfiguracja=180;
     }
     if(kierunek==4){
       prawo();
-      aktpole=aktpole-y;
+      aktpole--;
+      konfiguracja=270;
     }
   }
   if(konfiguracja ==270){
      if(kierunek==1){
       prawo();
       aktpole=aktpole-y;
+      konfiguracja=0;
     }
     if(kierunek==2){
       tyl();
-      aktpole--;
+      aktpole++;
+      konfiguracja=90; //lub 270
     }
     if(kierunek==3){
       lewo();
       aktpole=aktpole+y;
+      konfiguracja=180;
     }
     if(kierunek==4){
       prosto();
-      aktpole++;
+      aktpole--;
+      konfiguracja=270;
     }
   }
 }
@@ -206,10 +249,24 @@ void setup() {
     if(pole[aktpole]=0){
       pomiar(konfiguracja,aktpole);
       pole[aktpole]=1;
+      if(pole[aktpole-2*y]==1 && pole[aktpole-y-1]==1 && pole[aktpole-y+1]==1){
+        pole[aktpole-y]=1;  
+      }
+      if(pole[aktpole-y+1]==1 && pole[aktpole+2]==1 && pole[aktpole+y+1]==1){
+        pole[aktpole+1]=1;  
+      }
+      if(pole[aktpole+y+1]==1 && pole[aktpole+2*y]==1 && pole[aktpole+y-1]==1){
+        pole[aktpole+y]=1;  
+      }
+      if(pole[aktpole+y-1]==1 && pole[aktpole-2]==1 && pole[aktpole-y-1]==1){
+        pole[aktpole-1]=1;  
+      }
     }
+
+    //wywolanie funkcji powodujacej ruch mechanizmu
+    konfiguracja1(konfiguracja, aktpole);
     //zastosowanie algorytmu siłowego do eksploracji labiryntu
-    //losowanie z wolnych nesw  z tablicy i wykonanie lewo/prawo/prosto
-    //jakis kod
+    //nie wiem czy to silowy, ale wydaje sie ok
     
     //ustawienie licznika niezbadanych pol na zero
     j=0;
@@ -222,6 +279,6 @@ void setup() {
 }
 
 void loop() {
- //wykonanie algorytmu 
+ //wykonanie algorytmu optymalnego
   
 }
