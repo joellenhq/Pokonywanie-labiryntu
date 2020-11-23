@@ -7,6 +7,9 @@ int aktpole;
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
 boolean n[255],e[255],s[255],w[255];
 //byte kierunki[255];
+
+//zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
+
 void lewo(){
 
   
@@ -80,35 +83,38 @@ void pomiar(int konfiguracja, int i){
   
   if(sensor1<15){ 
     n[i]=1;
-    s[i-y]=1;
+    if(i>=(x-2)*y && i<(x-1)*y-1) s[i-y]=1;
   }
   else{
     n[i]=0;
-    s[i-y]=0;
+    if(i>=0 && i<y) s[i-y]=0;
   }
   if(sensor2<15){
     e[i]=1;
-    w[i+1]=1;
+    if(i%y==0) w[i+1]=1;
   }
   else{
     e[i]=0;
-    w[i+1]=0;
+    if(i%y==0) w[i+1]=0;
   }
   if(sensor3<15){
     s[i]=1;
-    n[i+y]=1;
+    if(i>=0 && i<y) n[i+y]=1;
+    if(i==1) s[1]=0;
   }
   else{
     s[i]=0;
-    n[i+y]=0;
+    if(i>=0 && i<y) n[i+y]=0;
   }
   if(sensor4<15){
     w[i]=1;
-    e[i-1]=1;
+    if((i+1)%y==0) e[i-1]=1;
+    //takie dzialanie zapewni, ze robot nie wyjedzie z labiryntu z pola startowego na otwarta przestrzen
+    if(i==1) w[1]=0;
   }
   else{
     w[i]=0;
-    e[i-1]=0;
+    if(((i+1)%y==0) e[i-1]=0;
   }
   
 }
