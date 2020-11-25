@@ -85,7 +85,8 @@ void pomiar(int konfiguracja, int i){
   if(sensor1<15){ 
     //wartosc 0 oznacza, ze mozliwy jest ruch w tamtym kierunku (nie ma sciany), a 1 oznacza przeszkode 
     n[i]=1;
-    //na brzegach mapy automatycznie ustawiana jest warto
+    //jesli sciana znajduje sie po jednej stronie komorki to odpowiednio po drugiej stronie sciany jest inna komorka 
+    //na brzegach labiryntu nie ma sasiadujacych komorek
     if(i>=(x-1)*y && i<=x*y-1);
     else s[i+y]=1;
   }
@@ -96,36 +97,37 @@ void pomiar(int konfiguracja, int i){
   }
   if(sensor2<15){
     e[i]=1;
-    if(i%y==0);
+    if((i+1)%y==0);
     else w[i+1]=1;
   }
   else{
     e[i]=0;
-    if(i%y==0);
+    if((i+1)%y==0);
     else w[i+1]=0;
   }
   if(sensor3<15){
     s[i]=1;
     if(i>=0 && i<y);
-    else n[i-y]=1;
-    if(i==0) s[1]=0;
+    else n[i-y]=1
   }
   else{
     s[i]=0;
     if(i>=0 && i<y);
     else n[i-y]=0;
+    //jesli labirynt jest otwarty na poczatku to niemozliwe ma byc wyjechanie z niego
+    if(i==0) s[1]=1;
   }
   if(sensor4<15){
     w[i]=1;
-    if((i+1)%y==0) e[i+1]=1;
-    //takie dzialanie zapewni, ze robot nie wyjedzie z labiryntu z pola startowego na otwarta przestrzen
-    if(i==0) w[1]=0;
+    if(i%y==0);
+    else e[i-1]=1;
   }
   else{
     w[i]=0;
-    if((i+1)%y==0) e[i+1]=0;
+    if((i+1)%y==0) e[i-1]=0;
+    //takie dzialanie zapewni, ze robot nie wyjedzie z labiryntu z pola startowego na otwarta przestrzen (poza labirynt)
+    if(i==0) w[1]=1;
   }
-  
 }
 
 int sprawdzenie(int i){
