@@ -1,36 +1,34 @@
-int pozKoncowa=255;
 int los;
 //zmienne okreslajace wielkosc labiryntu
 int x=16,y=16;
+//zmienna okreslajaca pozycje koncowa
+int pozKoncowa=x*y-1;
 //zmienna okreslajaca pozycje na mapie
 int aktpole; 
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
 boolean n[255],e[255],s[255],w[255];
 //byte kierunki[255];
-    //zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
-    boolean pole[255];
+//zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
+boolean pole[255];
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
 
-void lewo(){
 
+void lewo(){
   
 }
 void prawo(){
-
   
 }
 void prosto(){
-
   
 }
 
 void tyl(){
-
+  
 }
 
 void ukos(int kat){
-  //na razie jako idea na koncowe poprawki 
-  
+  //na razie jako idea na koncowe poprawki   
 }
 
 
@@ -45,9 +43,11 @@ float czujnik3(){
   
 }
 float czujnik4(){
-  
+  //zwraca jakas wysoka wartosc, w trakcie pomiaru zawsze przestrzen z tylu będzie pusta
+  return 40;
 }
 
+//funkcja pozwala na dokonanie pomiaru otoczenia, a takze tworzy mape (w postaci tablicy)
 void pomiar(int konfiguracja, int i){
   
   int sensor1;
@@ -83,35 +83,43 @@ void pomiar(int konfiguracja, int i){
     
   
   if(sensor1<15){ 
+    //wartosc 0 oznacza, ze mozliwy jest ruch w tamtym kierunku (nie ma sciany), a 1 oznacza przeszkode 
     n[i]=1;
-    if(i>=(x-2)*y && i<(x-1)*y-1) s[i-y]=1;
+    //na brzegach mapy automatycznie ustawiana jest warto
+    if(i>=(x-1)*y && i<=x*y-1);
+    else s[i+y]=1;
   }
   else{
     n[i]=0;
-    if(i>=0 && i<y) s[i-y]=0;
+    if(i>=(x-1)*y && i<=x*y-1);
+    else s[i+y]=0;
   }
   if(sensor2<15){
     e[i]=1;
-    if(i%y==0) w[i-1]=1;
+    if(i%y==0);
+    else w[i+1]=1;
   }
   else{
     e[i]=0;
-    if(i%y==0) w[i-1]=0;
+    if(i%y==0);
+    else w[i+1]=0;
   }
   if(sensor3<15){
     s[i]=1;
-    if(i>=0 && i<y) n[i-y]=1;
-    if(i==1) s[1]=0;
+    if(i>=0 && i<y);
+    else n[i-y]=1;
+    if(i==0) s[1]=0;
   }
   else{
     s[i]=0;
-    if(i>=0 && i<y) n[i-y]=0;
+    if(i>=0 && i<y);
+    else n[i-y]=0;
   }
   if(sensor4<15){
     w[i]=1;
     if((i+1)%y==0) e[i+1]=1;
     //takie dzialanie zapewni, ze robot nie wyjedzie z labiryntu z pola startowego na otwarta przestrzen
-    if(i==1) w[1]=0;
+    if(i==0) w[1]=0;
   }
   else{
     w[i]=0;
