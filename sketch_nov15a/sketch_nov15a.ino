@@ -325,6 +325,7 @@ void sciezka{
     //wpisujemy do tablicy kolejno pola o mniejszych wagach, jesli wagi sa takie same to wybieramy sciezke wzgledem poprzedniej wartosci, jesli nadal takie same to losujemy
     //sprawdzamy pola wokol, od najmniejszej wagi i wybieramy tam gdzie mozliwy jest ruch
     //
+    i++;
   }
 }
 
