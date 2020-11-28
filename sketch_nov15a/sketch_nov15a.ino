@@ -381,9 +381,12 @@ int sprawdzWagi(int i, int a){
   if(w[i]==0) sasiednieWagi[4]=waga[i-1];
   int minimum;
   //znalezenie indeksu najmniejszej wagi z tablicy sasiednieWagi
-  for(int b=0;b<sizeof(sasiednieWagi);b++){
-     
+  int mniejsze=1;
+  for(int b=2;b<=4;b++){
+     if(sasiednieWagi[mniejsze]>sasiednieWagi[b]) mniejsze=b;
+     else if(sasiednieWagi[mniejsze]=sasiednieWagi[b]) //to nie wiem
   }
+  minimum=mniejsze;
   
   switch(minimum) {
               case 1:
