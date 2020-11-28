@@ -325,7 +325,7 @@ void sciezka(){
   i++;
   while(pozycja!=poleStart){
     //wpisujemy do tablicy pole, gdzie mozliwy jest ruch o najmniejszej wadze
-    tablica[i]=sprawdzWagi(i);
+    tablica[i]=sprawdzWagi(aktpole,i);
     i++;
   }
 }
@@ -372,8 +372,33 @@ int getKierunek(int pole1,int pole2){
   else if(pole2==pole1-1) return 270;
 }
 
-int sprawdzWagi(int i){
+int sprawdzWagi(int i, int a){
+  int sasiednieWagi[4]={pozKoncowa,pozKoncowa,pozKoncowa,pozKoncowa};
   //trzeba znalezc minimum, ktore bedzie dokladnie o 1 lub o 3 mniejsze
+  if(n[i]==0) sasiednieWagi[1]=waga[i+y];
+  if(e[i]==0) sasiednieWagi[2]=waga[i+1];
+  if(s[i]==0) sasiednieWagi[3]=waga[i-y];
+  if(w[i]==0) sasiednieWagi[4]=waga[i-1];
+  int minimum;
+  //znalezenie indeksu najmniejszej wagi z tablicy sasiednieWagi
+  for(int b=0;b<sizeof(sasiednieWagi);b++){
+     
+  }
+  
+  switch(minimum) {
+              case 1:
+               return i+y;
+              break;
+              case 2:
+                return i+1;
+              break;
+              case 3:
+                return i-y;
+              break;
+              case 4:
+                return i-1;
+              break;
+          }
 }
 
 void setup() {
