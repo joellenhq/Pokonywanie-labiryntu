@@ -317,6 +317,7 @@ void wagi(int orientacja, int i){
      }
 }
 
+//funkcja wybierajaca zooptymalizowana sciezke
 void sciezka{
   int i=0;
   tablica[i]=pozKoncowa;
@@ -328,6 +329,47 @@ void sciezka{
     i++;
   }
 }
+
+void mapuj(int orientacja,int i){
+//jak na północ nie ma ściany i pole na północ nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
+if(n[i]==0 && waga[i+y]>waga && waga[i]<300) {
+/*//jak na południe nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na polnoc wpisz wage o 1 wieksza
+  if{s[i]==0 && waga[i-y]==waga[i]-1) waga(i+y)=waga[i]+1;
+  //na polnoc wpisz wage o 3 wieksza;
+  */
+  waga[i+y]=wagi(orientacja,i);
+  
+  }
+}
+//jak na poludnie nie ma ściany i pole na poludnie nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
+if(s[i]==0 && waga[i-y]>waga && waga[i]<300) {
+/*//jak na polnoc nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na poludnie wpisz wage o 1 wieksza
+  if{n[i]==0 && waga[i+y]==waga[i]-1) waga(i-y)=waga[i]+1;
+  //na polnoc wpisz wage o 3 wieksza;
+  else waga[i-y]=waga[i]+3;*/
+  waga[i-y]=wagi(orientacja,i);
+  }
+}
+//jak na wschod nie ma ściany i pole na wschod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
+if(e[i]==0 && waga[i+1]>waga && waga[i]<300) {
+/*//jak na zachod nie ma sciany i waga pola na zachod jest o 1 mniejsza  to na wschod wpisz wage o 1 wieksza
+  if{w[i]==0 && waga[i-1]==waga[i]-1) waga(i+1)=waga[i]+1;
+  //na polnoc wpisz wage o 3 wieksza;
+  else waga[i+1]=waga[i]+3;*/
+  waga[i+1]=wagi(orientacja,i);
+  }
+}
+//jak na zachod nie ma ściany i pole na zachod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
+if(w[i]==0 && waga[i-1]>waga && waga[i]<300) {
+/*//jak na wschod nie ma sciany i waga pola na wschod jest o 1 mniejsza  to na zachod wpisz wage o 1 wieksza
+  if{e[i]==0 && waga[i+1]==waga[i]-1) waga(i-1)=waga[i]+1;
+  //na polnoc wpisz wage o 3 wieksza;
+  else waga[i-1]=waga[i]+3;*/
+  waga[i-1]=wagi(orientacja,i);
+  }
+}
+}
+
 
 void setup() {
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
@@ -357,6 +399,7 @@ void setup() {
     }
     //wywolanie funkcji wybierajacej kierunek ruchu dla algorytmu eksploracyjnego (doglebnego przeszukiwania)
     int kierunek=sprawdzenie(aktpole);
+    mapuj(konfiguracja,aktpole);
     //wywolanie funkcji powodujacej ruch mechanizmu
     ruch(konfiguracja,kierunek,aktpole);
     //ustawienie licznika niezbadanych pol na zero
