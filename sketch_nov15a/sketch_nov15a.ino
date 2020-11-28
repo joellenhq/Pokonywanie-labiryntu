@@ -296,23 +296,23 @@ void wagi(int orientacja, int i){
       
      if(e[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+3) waga[i+y]=waga[i]+3;
+          if(waga[i+y]>waga[i]+3) waga[i+1]=waga[i]+3;
         else{
-          if(waga[i+y]>waga[i]+1) waga[i+y]=waga[i]+1;
+          if(waga[i+y]>waga[i]+1) waga[i+1]=waga[i]+1;
         }
      }
      if(s[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+1) waga[i+y]=waga[i]+1;
+          if(waga[i+y]>waga[i]+1) waga[i-1]=waga[i]+1;
         else{
-          if(waga[i+y]>waga[i]+3) waga[i+y]=waga[i]+3;
+          if(waga[i+y]>waga[i]+3) waga[i-1]=waga[i]+3;
         }
      }
      if(w[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+3) waga[i+y]=waga[i]+3;
+          if(waga[i+y]>waga[i]+3) waga[i-y]=waga[i]+3;
         else{
-          if(waga[i+y]>waga[i]+1) waga[i+y]=waga[i]+1;
+          if(waga[i+y]>waga[i]+1) waga[i-y]=waga[i]+1;
         }
      }
 }
@@ -332,7 +332,7 @@ void sciezka{
 
 void mapuj(int orientacja,int i){
 //jak na północ nie ma ściany i pole na północ nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(n[i]==0 && waga[i+y]>waga && waga[i]<300) {
+if(n[i]==0 && waga[i+y]>waga[i]) {
 /*//jak na południe nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na polnoc wpisz wage o 1 wieksza
   if{s[i]==0 && waga[i-y]==waga[i]-1) waga(i+y)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
@@ -342,7 +342,7 @@ if(n[i]==0 && waga[i+y]>waga && waga[i]<300) {
   }
 }
 //jak na poludnie nie ma ściany i pole na poludnie nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(s[i]==0 && waga[i-y]>waga && waga[i]<300) {
+if(s[i]==0 && waga[i-y]>waga[i]) {
 /*//jak na polnoc nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na poludnie wpisz wage o 1 wieksza
   if{n[i]==0 && waga[i+y]==waga[i]-1) waga(i-y)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
@@ -351,7 +351,7 @@ if(s[i]==0 && waga[i-y]>waga && waga[i]<300) {
   }
 }
 //jak na wschod nie ma ściany i pole na wschod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(e[i]==0 && waga[i+1]>waga && waga[i]<300) {
+if(e[i]==0 && waga[i+1]>waga[i]) {
 /*//jak na zachod nie ma sciany i waga pola na zachod jest o 1 mniejsza  to na wschod wpisz wage o 1 wieksza
   if{w[i]==0 && waga[i-1]==waga[i]-1) waga(i+1)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
@@ -360,7 +360,7 @@ if(e[i]==0 && waga[i+1]>waga && waga[i]<300) {
   }
 }
 //jak na zachod nie ma ściany i pole na zachod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(w[i]==0 && waga[i-1]>waga && waga[i]<300) {
+if(w[i]==0 && waga[i-1]>waga[i]) {
 /*//jak na wschod nie ma sciany i waga pola na wschod jest o 1 mniejsza  to na zachod wpisz wage o 1 wieksza
   if{e[i]==0 && waga[i+1]==waga[i]-1) waga(i-1)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
