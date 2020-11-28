@@ -383,8 +383,26 @@ int sprawdzWagi(int i, int a){
   //znalezenie indeksu najmniejszej wagi z tablicy sasiednieWagi
   int mniejsze=1;
   for(int b=2;b<=4;b++){
+     //sprawdzenie po kolei wag elementow czy sa mniejsze od poprzedniej wagi
+     //jesli tak to mniejszy element jest zastepowany
      if(sasiednieWagi[mniejsze]>sasiednieWagi[b]) mniejsze=b;
-     else if(sasiednieWagi[mniejsze]=sasiednieWagi[b]) //to nie wiem
+     //warunek okreslajacy dzialanie jesli wartosci sa rowne
+     else if(sasiednieWagi[mniejsze]==sasiednieWagi[b]){
+        //zbadanie roznicy pol z wartoscia poprzednia
+        int c=tablica[a-1]-tablica[i];
+        //jesli roznica pol wynosi y to, aby ruch byl w linii prostej musimy sie poruszac w kierunku polnocnym lub poludniowym
+        if(abs(c)==y){
+          if(mniejsze==1 || mniejsze==3);
+          //jesli mniejsze nie jet w kierunku polnocnym lub poludniowym to wybieramy wariant b
+          //wariant b moze powodowac ruch po linii prostej lub tak ruch jak poprzedni wariant mniejsze
+          else mniejsze=b; 
+        } 
+        //jesli roznica pol jest inna (wynosi 1) to, aby ruch byl w linii prostej musimy sie poruszac w kierunku wschodnim lub zachodnim
+        else{
+          if(mniejsze==2 || mniejsze==4);
+          else mniejsze=b; 
+        } 
+     }
   }
   minimum=mniejsze;
   
