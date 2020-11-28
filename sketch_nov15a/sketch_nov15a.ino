@@ -296,23 +296,23 @@ void wagi(int orientacja, int i){
       
      if(e[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+3) waga[i+1]=waga[i]+3;
+          if(waga[i+1]>waga[i]+3) waga[i+1]=waga[i]+3;
         else{
-          if(waga[i+y]>waga[i]+1) waga[i+1]=waga[i]+1;
+          if(waga[i+1]>waga[i]+1) waga[i+1]=waga[i]+1;
         }
      }
      if(s[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+1) waga[i-1]=waga[i]+1;
+          if(waga[i-y]>waga[i]+1) waga[i-y]=waga[i]+1;
         else{
-          if(waga[i+y]>waga[i]+3) waga[i-1]=waga[i]+3;
+          if(waga[i-y]>waga[i]+3) waga[i-y]=waga[i]+3;
         }
      }
      if(w[i]==0){
         if(orientacja1==0 || orientacja1==180)
-          if(waga[i+y]>waga[i]+3) waga[i-y]=waga[i]+3;
+          if(waga[i-1]>waga[i]+3) waga[i-1]=waga[i]+3;
         else{
-          if(waga[i+y]>waga[i]+1) waga[i-y]=waga[i]+1;
+          if(waga[i-1]>waga[i]+1) waga[i-1]=waga[i]+1;
         }
      }
 }
