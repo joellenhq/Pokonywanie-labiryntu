@@ -19,7 +19,7 @@ int kierunek;
 int polaRuchu[255];
 //tablica, do ktorej wpisywane sa wagi pol wg przyspieszonego algorytmu propagacji fali
 int waga[255];
-
+int tablica[255];
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl=15;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
@@ -283,7 +283,7 @@ void ruch(int konfiguracja, int kierunek, int i){
   }
 }
 
-void wagi(int orientacja, int i){
+int wagi(int orientacja, int i){
     int orientacja1=orientacja;
     if(n[i]==0){
         if(orientacja1==0 || orientacja1==180){
@@ -318,63 +318,75 @@ void wagi(int orientacja, int i){
 }
 
 //funkcja wybierajaca zooptymalizowana sciezke
-void sciezka{
+void sciezka(){
   int i=0;
   tablica[i]=pozKoncowa;
-  pozycja=pozKoncowa;
+  int pozycja=pozKoncowa;
+  i++;
   while(pozycja!=poleStart){
-    //wpisujemy do tablicy kolejno pola o mniejszych wagach, jesli wagi sa takie same to wybieramy sciezke wzgledem poprzedniej wartosci, jesli nadal takie same to losujemy
-    //sprawdzamy pola wokol, od najmniejszej wagi i wybieramy tam gdzie mozliwy jest ruch
-    //
+    //wpisujemy do tablicy pole, gdzie mozliwy jest ruch o najmniejszej wadze
+    tablica[i]=sprawdzWagi(i);
     i++;
   }
 }
 
 void mapuj(int orientacja,int i){
 //jak na północ nie ma ściany i pole na północ nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(n[i]==0 && waga[i+y]>waga[i]) {
+  if(n[i]==0 && waga[i+y]>waga[i]) {
 /*//jak na południe nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na polnoc wpisz wage o 1 wieksza
   if{s[i]==0 && waga[i-y]==waga[i]-1) waga(i+y)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
   */
-  waga[i+y]=wagi(orientacja,i);
-  
+    waga[i+y]=wagi(orientacja,i);
   }
-}
 //jak na poludnie nie ma ściany i pole na poludnie nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(s[i]==0 && waga[i-y]>waga[i]) {
+  if(s[i]==0 && waga[i-y]>waga[i]) {
 /*//jak na polnoc nie ma sciany i waga pola na poludnie jest o 1 mniejsza  to na poludnie wpisz wage o 1 wieksza
   if{n[i]==0 && waga[i+y]==waga[i]-1) waga(i-y)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
   else waga[i-y]=waga[i]+3;*/
-  waga[i-y]=wagi(orientacja,i);
+    waga[i-y]=wagi(orientacja,i);
   }
-}
 //jak na wschod nie ma ściany i pole na wschod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(e[i]==0 && waga[i+1]>waga[i]) {
+  if(e[i]==0 && waga[i+1]>waga[i]) {
 /*//jak na zachod nie ma sciany i waga pola na zachod jest o 1 mniejsza  to na wschod wpisz wage o 1 wieksza
   if{w[i]==0 && waga[i-1]==waga[i]-1) waga(i+1)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
   else waga[i+1]=waga[i]+3;*/
-  waga[i+1]=wagi(orientacja,i);
+    waga[i+1]=wagi(orientacja,i);
   }
-}
 //jak na zachod nie ma ściany i pole na zachod nie zostało już zapisane mniejsza liczba ale obecne pole jest zapisane
-if(w[i]==0 && waga[i-1]>waga[i]) {
+  if(w[i]==0 && waga[i-1]>waga[i]) {
 /*//jak na wschod nie ma sciany i waga pola na wschod jest o 1 mniejsza  to na zachod wpisz wage o 1 wieksza
   if{e[i]==0 && waga[i+1]==waga[i]-1) waga(i-1)=waga[i]+1;
   //na polnoc wpisz wage o 3 wieksza;
   else waga[i-1]=waga[i]+3;*/
-  waga[i-1]=wagi(orientacja,i);
+    waga[i-1]=wagi(orientacja,i);
   }
 }
+
+int getKierunek(int pole1,int pole2){
+  if(pole2==pole1+y) return 0;
+  else if(pole2==pole1+1) return 90;
+  else if(pole2==pole1-y) return 180;
+  else if(pole2==pole1-1) return 270;
 }
 
+int sprawdzWagi(int i){
+  //trzeba znalezc minimum, ktore bedzie dokladnie o 1 lub o 3 mniejsze
+}
 
 void setup() {
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
   int j=1;
   
+  //wpisanie da tablicy waga duzych wartosci
+  for(int k=0; k<=sizeof(waga);k++){
+    waga[k]=pozKoncowa+1;
+  }
+  //nadanie polu poczatkowemu wagi 1
+  waga[0]=1;
+    
   //petla zotanie wykonywana dopoki nie zostana zbadane wszystkie pola
   while(j!=0){
      
@@ -399,6 +411,9 @@ void setup() {
     }
     //wywolanie funkcji wybierajacej kierunek ruchu dla algorytmu eksploracyjnego (doglebnego przeszukiwania)
     int kierunek=sprawdzenie(aktpole);
+    //mapowanie odbywa się na kazdym pole w fazie badania
+    //takie dzialanie pozwoli na szybsze wprowadzenie optymalizacji trasy
+    //gdy odbywa się to juz w fazie eksploracji
     mapuj(konfiguracja,aktpole);
     //wywolanie funkcji powodujacej ruch mechanizmu
     ruch(konfiguracja,kierunek,aktpole);
@@ -410,20 +425,26 @@ void setup() {
     }
   }
   //po zakonczeniu algorytmu robot powinien ustawic sie na pole startowe
-  //no coz
+  
+
+  
   //wpisanie do tablic z wagami najwiekszej mozliwej wartosci
   for(int i=0;i<=pozKoncowa;i++){
     waga[i]=pozKoncowa;
   }
   if(aktpole=0){
-    //nadanie polu poczatkowemu wagi 1
-    waga[aktpole]=1;
-    //zdefiniowanie zmiennej, ktora przysluzy do sprawdzenia wag calego labiryntu
-    int badanepole=aktpole;
-    //wpisanie wag sasiednim polom wedlug konfiguracji (ruch przod/tyl waga++, ruch wymagajacy skretu waga+3)
-    wagi(konfiguracja,badanepole);
-
-    //
+    int nastpole;
+    //wywolujemy funkcje, ktora utworzy nam trase (wpisze do tablicy kolejne pola)
+    sciezka();
+    //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
+    for(int l;aktpole!=pozKoncowa;l++){
+      //sprawdzamy jakie jest nastepne pole do ktorego chcemy sie poruszyc
+      nastpole=tablica[l];
+      //sprawdzamy jaki jest kierunek na podstawie pola aktualnego i pola docelowego
+      kierunek=getKierunek(aktpole,nastpole);
+      //jest wykonywany ruch na pole docelowe
+      ruch(konfiguracja,kierunek,aktpole);
+    }
   }
 }
 
