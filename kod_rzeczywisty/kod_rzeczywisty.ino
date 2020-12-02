@@ -74,6 +74,8 @@ int waga[255];
 int tablica[255];
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl=15;
+//zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
+char z;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
 
 void prosto(int spd){  //funkcja do jazdy prosto
@@ -603,7 +605,7 @@ int sprawdzWagi(int i, int a){
 }
 
 void setup() {
-  
+  Serial.begin(9600);
   //deklaracja trybów pinów
   pinMode(DRIVE_ENG_PIN1, OUTPUT);
   pinMode(DRIVE_ENG_PIN2, OUTPUT);
@@ -686,6 +688,25 @@ void setup() {
 }
 
 void loop() {
- //wykonanie algorytmu optymalnego
-  
+ //gdy algorytmy sie wykonaja to mozliwe jest reczne sterowanie robotem
+  if (Serial.available()) {
+    z = Serial.read();
+      switch(z) {
+              case '1':
+                ruch(konfiguracja,1,aktpole);
+              break;
+              case '2':
+                ruch(konfiguracja,2,aktpole);
+              break;
+              case '3':
+                ruch(konfiguracja,kierunek,aktpole);
+              break;
+              case '4':
+                ruch(konfiguracja,kierunek,aktpole);
+              break;
+          }
+          //zamiast switcha
+          //int z1=Serial.parseInt()
+          //ruch(konfiguracja,z1,aktpole);
+  }
 }

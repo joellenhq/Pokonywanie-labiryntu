@@ -1,11 +1,3 @@
-// definiowanie pinow dla czujnikow
-const int pinLewyCzujnik = 8;
-const int pinPrawyCzujnik  = 13;
-const int pinPrzedniCzujnik = 12;
-// zmienna okreslajaca odległość od ścianek labiryntu
-float jednostkaPola;
-// srednica robota w [cm] (odleglosc czujnikow od siebie) 
-float grRobota = 15; 
 int los;
 //zmienne okreslajace wielkosc labiryntu
 int x=16,y=16;
@@ -30,75 +22,52 @@ int waga[255];
 int tablica[255];
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl=15;
+//zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
+char z;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
 
+
+void fileWrite(int kierunek){
+  //musze sie jeszcze zastanowic nad tymi plikami i komunikacja po serialu
+  if (Serial.available()) {
+    Serial.write(kierunek);
+  }
+}
+
 void lewo(){
-  
+  fileWrite(2);
 }
 void prawo(){
-  
+  fileWrite(4);
 }
 void prosto(){
-  
+  fileWrite(1);
 }
 
 void tyl(){
-  
+  fileWrite(3);
 }
 
-void ukos(int kat){
-  //na razie jako idea na koncowe poprawki   
+void fileRead(int scianaKierunek){
+  //wtedy trzeba by odebrac wart pola, znalezc w tablicy wartosc i zwrocic wartosc 0 lub 1
+  if (Serial.available()) {
+    Serial.write(aktpole, scianaKierunek);
+    char sciana01 = Serial.parseInt();
+    return sciana01;
+  }
 }
 
-// Odczyt z czujnikow
-// funkcja odczytujaca czas przebiegu fali dzwiekowej czujnika
-long readUltrasonicDistance(int triggerPin, int echoPin)
-{
-  pinMode(triggerPin, OUTPUT);  // reset triggera
-  digitalWrite(triggerPin, LOW);
-  delayMicroseconds(2);
-  // Ustawienie pinu triggerujacego na HIGH na 10 [us] mikrosekund
-  digitalWrite(triggerPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(triggerPin, LOW);
-  pinMode(echoPin, INPUT);
-  // zwraca czas przebiegu dzwieku w [us] mikrosekundach
-  return pulseIn(echoPin, HIGH);
-}
-
-// funkcja obliczajaca odleglosc od obiektu w [cm]
-float writeValues(int triggerPin, int echoPin)
-{
-  int cm;
-  // obliczenie odleglosci obiektu
-  cm = 0.01723 * readUltrasonicDistance(triggerPin, echoPin);
-  // zwraca odleglosc od obiektu w [cm]
-  return cm;
-}
-
-// czujnik przedni
 float czujnik1(){
-  //moze byc tez int
-  //zwraca odleglosc z czujnika przedniego w [cm]
-  return writeValues(pinPrzedniCzujnik, pinPrzedniCzujnik);
+  fileRead();
 }
-
-// czujnik prawy
 float czujnik2(){
-  //zwraca odleglosc z czujnika prawego w [cm]
-  return writeValues(pinPrawyCzujnik, pinPrawyCzujnik);
+  fileRead();
 }
-
-// czujnik tylny (fizycznie niewystepujacy)
 float czujnik3(){
-  //zwraca rozwnowartosc okolo 1.5 jednostki pola w [cm] - zapewnia zawsze pusta przestrzen z tylu
-  return 1.5 * jednostkaPola;
+  return 0;  
 }
-
-// czujnik lewy
 float czujnik4(){
-  //zwraca odleglosc z czujnika lewego w [cm]
-  return writeValues(pinLewyCzujnik, pinLewyCzujnik);
+  fileRead();
 }
 
 //funkcja pozwala na dokonanie pomiaru otoczenia, a takze tworzy mape (w postaci tablicy)
@@ -136,7 +105,7 @@ void pomiar(int konfiguracja, int i){
   }
     
   
-  if(sensor1<maxOdl){ 
+  if(sensor1==1){ 
     //wartosc 0 oznacza, ze mozliwy jest ruch w tamtym kierunku (nie ma sciany), a 1 oznacza przeszkode 
     n[i]=1;
     //jesli sciana znajduje sie po jednej stronie komorki to odpowiednio po drugiej stronie sciany jest inna komorka 
@@ -149,7 +118,7 @@ void pomiar(int konfiguracja, int i){
     if(i>=(x-1)*y && i<=x*y-1);
     else s[i+y]=0;
   }
-  if(sensor2<maxOdl){
+  if(sensor2==1){
     e[i]=1;
     if((i+1)%y==0);
     else w[i+1]=1;
@@ -159,7 +128,7 @@ void pomiar(int konfiguracja, int i){
     if((i+1)%y==0);
     else w[i+1]=0;
   }
-  if(sensor3<maxOdl){
+  if(sensor3==1){
     s[i]=1;
     if(i>=0 && i<y);
     else n[i-y]=1;
@@ -171,7 +140,7 @@ void pomiar(int konfiguracja, int i){
     //jesli labirynt jest otwarty na poczatku to niemozliwe ma byc wyjechanie z niego
     if(i==0) s[1]=1;
   }
-  if(sensor4<maxOdl){
+  if(sensor4==1){
     w[i]=1;
     if(i%y==0);
     else e[i-1]=1;
@@ -466,9 +435,7 @@ int sprawdzWagi(int i, int a){
 }
 
 void setup() {
-  // obliczenie jednostki pola - 2 * odleglosc od lewej scianki
-  jednostkaPola = 2 * writeValues(pinLewyCzujnik, pinLewyCzujnik) + grRobota;
-  
+  Serial.begin(9600);
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
   int j=1;
   
@@ -541,6 +508,25 @@ void setup() {
 }
 
 void loop() {
- //wykonanie algorytmu optymalnego
-  
+ //gdy algorytmy sie wykonaja to mozliwe jest reczne sterowanie robotem
+  if (Serial.available()) {
+    z = Serial.read();
+      switch(z) {
+              case '1':
+                ruch(konfiguracja,1,aktpole);
+              break;
+              case '2':
+                ruch(konfiguracja,2,aktpole);
+              break;
+              case '3':
+                ruch(konfiguracja,3,aktpole);
+              break;
+              case '4':
+                ruch(konfiguracja,4,aktpole);
+              break;
+          }
+          //zamiast switcha
+          //int z1=Serial.parseInt()
+          //ruch(konfiguracja,z1,aktpole);
+  }
 }
