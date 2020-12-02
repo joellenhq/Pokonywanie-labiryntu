@@ -72,6 +72,7 @@ int polaRuchu[255];
 //tablica, do ktorej wpisywane sa wagi pol wg przyspieszonego algorytmu propagacji fali
 int waga[255];
 int tablica[255];
+int tablica2[255]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl=15;
 //zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
@@ -663,10 +664,9 @@ void setup() {
       if(pole[k]==0) j++;  
     }
   }
-  //po zakonczeniu algorytmu robot powinien ustawic sie na pole startowe
-  
-
-  
+  //po zakonczeniu algorytmu robot powinien zostac ustawiony na pole startowe
+  //nastapi oczekiwanie 30 sekund na ustawienie robota
+  delay(3000);
   //wpisanie do tablic z wagami najwiekszej mozliwej wartosci
   for(int i=0;i<=pozKoncowa;i++){
     waga[i]=pozKoncowa;
@@ -674,6 +674,9 @@ void setup() {
   if(aktpole=0){
     int nastpole;
     //wywolujemy funkcje, ktora utworzy nam trase (wpisze do tablicy kolejne pola)
+    //sciezka jest tworzona, gdy robot stoi na polu startowym
+    //sciezka jest tworzona dla obecnej orientacji robota w labiryncie
+    //dlatego nie potrzeba tworzyc dwoch tablic z wagami dla roznych oreintacji
     sciezka();
     //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
     for(int l;aktpole!=pozKoncowa;l++){
