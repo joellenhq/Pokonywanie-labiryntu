@@ -484,9 +484,9 @@ void setup() {
     }
   }
   //po zakonczeniu algorytmu robot powinien ustawic sie na pole startowe
-  
+  aktpole=0;
+  orientacja=0;
 
-  
   //wpisanie do tablic z wagami najwiekszej mozliwej wartosci
   for(int i=0;i<=pozKoncowa;i++){
     waga[i]=pozKoncowa;
@@ -494,6 +494,9 @@ void setup() {
   if(aktpole=0){
     int nastpole;
     //wywolujemy funkcje, ktora utworzy nam trase (wpisze do tablicy kolejne pola)
+    //sciezka jest tworzona, gdy robot stoi na polu startowym
+    //sciezka jest tworzona dla obecnej orientacji robota w labiryncie
+    //dlatego nie potrzeba tworzyc dwoch tablic z wagami dla roznych oreintacji
     sciezka();
     //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
     for(int l;aktpole!=pozKoncowa;l++){
@@ -526,6 +529,7 @@ void loop() {
               break;
           }
           //zamiast switcha
+          //tylko trzeba wykonac testy
           //int z1=Serial.parseInt()
           //ruch(konfiguracja,z1,aktpole);
   }
