@@ -616,7 +616,7 @@ void setup() {
   
   // obliczenie jednostki pola - 2 * odleglosc od lewej scianki
   jednostkaPola = 2 * writeValues(pinLewyCzujnik, pinLewyCzujnik) + grRobota;
-  
+  maxOdl=jednostkaPola;
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
   int j=1;
   
