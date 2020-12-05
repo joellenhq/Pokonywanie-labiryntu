@@ -33,10 +33,10 @@ THE SOFTWARE.
 #define DRIVE_ENG_PIN2 9 //pin2 PWM silnika lewego
 #define TURN_ENG_PIN1 6 //pin1 PWM silnika prawego
 #define TURN_ENG_PIN2 10 //pin2 PWM silnika prawego
-#define SAMPLE_TIME_YAW_PD 1000 //czas próbkowania w ms regulatora PD do skręcania
+#define SAMPLE_TIME_YAW_PD 100 //czas próbkowania w ms regulatora PD do skręcania
 #define TURN_REG_P 1.0 //wzmocnienie P regulatora PD regulującego orientację 
 #define TURN_REG_D 0.01 //czas różniczkowania regulatora PD regulującego orientację 
-
+#define TURN_SPD 50 //maksymalna wartość sygnału pwm silnika do skręcania
 MPU6050 IMU;  //deklaracja obiektu reprezentującego układ MPU6050
 
 
@@ -132,6 +132,7 @@ void rotate(float target_yaw){    //funkcja służąca ustawiania zadanej orient
 }
 void turn(int turn_spd){  //funkcja służąca do skręcania robotem
   //dodatnia prędkość skręcania to skręt w prawo, ujemna w lewo
+  turn_spd = constrain(turn_spd,-TURN_SPD,TURN_SPD);
   if(turn_spd>=0)
     set_motor_spd(TURN_ENG_PIN1, TURN_ENG_PIN2, turn_spd);
   else if(turn_spd<0)
