@@ -8,14 +8,17 @@
 /* ============================================
 I2Cdev device library code is placed under the MIT license
 Copyright (c) 2012 Jeff Rowberg
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
+
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,10 +33,10 @@ THE SOFTWARE.
 #define DRIVE_ENG_PIN2 9 //pin2 PWM silnika lewego
 #define TURN_ENG_PIN1 6 //pin1 PWM silnika prawego
 #define TURN_ENG_PIN2 10 //pin2 PWM silnika prawego
-#define SAMPLE_TIME_YAW_PD 1000 //czas próbkowania w ms regulatora PD do skręcania
+#define SAMPLE_TIME_YAW_PD 100 //czas próbkowania w ms regulatora PD do skręcania
 #define TURN_REG_P 1.0 //wzmocnienie P regulatora PD regulującego orientację 
 #define TURN_REG_D 0.01 //czas różniczkowania regulatora PD regulującego orientację 
-
+#define TURN_SPD 50 //maksymalna wartość sygnału pwm silnika do skręcania
 MPU6050 IMU;  //deklaracja obiektu reprezentującego układ MPU6050
 
 
@@ -46,11 +49,7 @@ const int pinPrzedniCzujnik = 12;
 // zmienna okreslajaca odległość od ścianek labiryntu
 float jednostkaPola;
 // srednica robota w [cm] (odleglosc czujnikow od siebie) 
-float grRobota = 15;
-// zmienne dla startowej odleglosci od scianek labiryntu 
-float odlLewoStart, odlPrawoStart;
-// zmienne dla odczytu odleglosci z poprzedniego pola
-float odlLewoPop, odlPrawoPop;
+float grRobota = 15; 
 int los;
 //zmienne okreslajace wielkosc labiryntu
 int x=16,y=16;
@@ -83,38 +82,12 @@ char z;
 void prosto(int spd){  //funkcja do jazdy prosto
   //jazda do przodu
   //ustawienie prędkości silnika do jazdy przód/tył
-  float startDist = writeValues(pinPrzedniCzujnik, pinPrzedniCzujnik); //pomiar przy rozpoczeciu ruchu
-  float currentDist, prev_error;
-  unsigned long current_time, prev_reg_time;
-  do{
-    currentDist = writeValues(pinPrzedniCzujnik, pinPrzedniCzujnik); //pomiary podczas ruchu
-    current_time=millis();  //odczyt aktualnego czasu od uruchomienia arduino
-    while(current_time-prev_reg_time<SAMPLE_TIME_PROSTO_PD);  //oczekiwanie upłynięcie czasu do końca cyklu(stały czas próbkowania regulatora)
-
-    prev_reg_time=current_time; //zapis ostatniego czasu przeliczenia sygnału sterującego
-    int spd_reg = (int)PD_reg(PROSTO_REG_P, PROSTO_REG_D, currentDist, startDist - jednostkaPola, prev_error); //wyznaczenie sygnału sterującego
-    prev_error=startDist - jednostkaPola - currentDist;
-    spd_reg = constrain(spd_reg, -spd, spd);
-    set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, -spd_reg);
-    poprawPozycje(kierunek);  
-  }while(abs(prev_error)>=1);
-  set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, 0);
+  set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, spd);  
 }
 void tyl(int spd){
-  // IN PROGESS
   //jazda do tyłu
   //ustawienie prędkości silnika do jazdy przód/tył
-  float odlLewoCurr = writeValues(pinLewoCzujnik, pinLewoCzujnik);
-  float odlPrawoCurr = writeValues(pinPrawoCzujnik, pinPrawoCzujnik);
-  if(odlLewoCurr > odlPrawoCurr){
-    lewo();
-    lewo();
-  }
-  else{
-    prawo();
-    prawo();
-  }
-  prosto(100);
+  set_motor_spd(DRIVE_ENG_PIN2,DRIVE_ENG_PIN1, spd);  
 }
 void lewo(){  //funkcja do skrętu w lewo
   bool dir=false;
@@ -129,78 +102,8 @@ void prawo(){
   target_yaw=yaw-90; //ustawienie odpowiedniej orientacji
   rotate(target_yaw); //ustawienie zadanej orientacji
   target_yaw=limit_yaw(target_yaw); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
-}
-void korektaLewo(){ // funkcja do korekty odleglosci od prawej sciany
-  bool dir=false;
-  yaw=get_yaw();  //odczyt aktualnego kąta yaw
-  target_yaw=yaw+1; //ustawienie odpowiedniej orientacji
-  rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw+180); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
-}
-void korektaPrawo(){ // funkcja do korekty odleglosci od lewej sciany
-  bool dir=true;
-  yaw=get_yaw();  //odczyt aktualnego kąta yaw
-  target_yaw=yaw-1; //ustawienie odpowiedniej orientacji
-  rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
-}
 
-// funkcja korygujaca odleglosc od scianek robota
-void poprawPozycje(int kierunek){
-  float odlLewoTeraz = writeValues(pinLewyCzujnik, pinLewyCzujnik);
-  float odlPrawoTeraz = writeValues(pinPrawyCzujnik, pinPrawyCzujnik);
-  
-  if(kierunek == 1){ // do przodu
-    // 20% mniej niz odleglosc poczatkowa czujnika lewego
-    if(odlLewoTeraz < 0.8 * odlLewoStart){
-      if(odlLewoTeraz < odlLewoPop){
-        //skrecenie w prawo o 1 st
-        korektaPrawo();
-      }
-    }
-    else if(odlPrawoTeraz < 0.8 * odlPrawoStart){
-      if(odlPrawoTeraz < odlPrawoPop){
-        //skrecenie w lewo o 1 st
-        korektaLewo();
-      }
-    }
-    // zapisanie do zmiennych stanu obecnego - w nastepnym polu stan poprzedni
-    if(odlLewoTeraz < jednostkaPola){
-      odlLewoPop = odlLewoTeraz;
-    }
-    if(odlPrawoTeraz < jednostkaPola){
-      odlPrawoPop = odlPrawoTeraz;
-    } 
-  }
-  
-  else if(kierunek == 3){ // do tylu
-    if(odlLewoTeraz < 0.8 * odlLewoStart){
-      if(odlLewoTeraz < odlLewoPop){
-        //skrecenie w lewo o 1 st
-        korektaLewo();
-      }
-    }
-    else if(odlPrawoTeraz < 0.8 * odlPrawoStart){
-      if(odlPrawoTeraz < odlPrawoPop){
-        //skrecenie w prawo o 1 st
-        korektaPrawo();
-      }
-    }
-    // zapisanie do zmiennych stanu obecnego - w nastepnym polu stan poprzedni
-    if(odlLewoTeraz < jednostkaPola){
-      odlLewoPop = odlLewoTeraz;
-    }
-    if(odlPrawoTeraz < jednostkaPola){
-      odlPrawoPop = odlPrawoTeraz;
-    }
-  }
-  // po zakrecie resetowanie odleglosci poprzedniej od scianki do wartosci poczatkowej
-  else{
-    odlLewoPop = odkLewoStart;
-    odlPrawoPop = odlPrawoStart;
-  }
 }
-
 float limit_yaw(float yaw_val){ //funkcja ograniczająca (teoretyczny)yaw do zakresu 0 do 360 stopni
   if(yaw_val<0){ 
     yaw_val=yaw_val+360;
@@ -224,13 +127,12 @@ void rotate(float target_yaw){    //funkcja służąca ustawiania zadanej orient
 
   prev_yaw_reg_time=current_time; //zapis ostatniego czasu przeliczenia sygnału sterującego
   int turn_spd = (int)PD_reg(TURN_REG_P, TURN_REG_D, yaw+yaw_offset, target_yaw + yaw_offset, prev_yaw_error); //wyznaczenie sygnału sterującego
-  prev_yaw_error=target_yaw - yaw;
   turn(turn_spd); //skręcanie robotem
   }while(abs(target_yaw-yaw)>=1);   //skrecanie dopóki uchyb  >=1
-  turn(0); // zatrzymanie silnika po skrecie
 }
 void turn(int turn_spd){  //funkcja służąca do skręcania robotem
   //dodatnia prędkość skręcania to skręt w prawo, ujemna w lewo
+  turn_spd = constrain(turn_spd,-TURN_SPD,TURN_SPD);
   if(turn_spd>=0)
     set_motor_spd(TURN_ENG_PIN1, TURN_ENG_PIN2, turn_spd);
   else if(turn_spd<0)
@@ -240,6 +142,7 @@ void turn(int turn_spd){  //funkcja służąca do skręcania robotem
 float PD_reg(float P, float D, float current_val, float target_val, float prev_error){  //funkcja wyznaczająca sygnał sterujący (regulator PD)
   float error= target_val-current_val;
   float sig_out= P*error+D*(error-prev_error);
+  prev_error=error;
   return sig_out;
 }
 
@@ -343,7 +246,7 @@ float czujnik4(){
 void pomiar(int konfiguracja, int i){
   
   int sensor1;
-  int sensor2;
+  int sensor2;;
   int sensor3;
   int sensor4;
 
@@ -482,7 +385,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==2){
       prawo();
-      prosto(100);
       aktpole++;
       konfiguracja=90;
     }
@@ -493,7 +395,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==4){
       lewo();
-      prosto(100);
       aktpole--;
       konfiguracja=270;
     }
@@ -501,7 +402,6 @@ void ruch(int konfiguracja, int kierunek, int i){
   if(konfiguracja==90){
      if(kierunek==1){
       lewo();
-      prosto(100);
       aktpole=aktpole+y;
       konfiguracja=0;
     }
@@ -512,7 +412,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==3){
       prawo();
-      prosto(100);
       aktpole=aktpole-y;
       konfiguracja=180;
     }
@@ -530,7 +429,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==2){
       lewo();
-      prosto(100);
       aktpole++;
       konfiguracja=90;
     }
@@ -541,7 +439,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==4){
       prawo();
-      prosto(100);
       aktpole--;
       konfiguracja=270;
     }
@@ -549,7 +446,6 @@ void ruch(int konfiguracja, int kierunek, int i){
   if(konfiguracja ==270){
      if(kierunek==1){
       prawo();
-      prosto(100);
       aktpole=aktpole+y;
       konfiguracja=0;
     }
@@ -560,7 +456,6 @@ void ruch(int konfiguracja, int kierunek, int i){
     }
     if(kierunek==3){
       lewo();
-      prosto(100);
       aktpole=aktpole-y;
       konfiguracja=180;
     }
@@ -719,16 +614,9 @@ void setup() {
   pinMode(TURN_ENG_PIN1, OUTPUT);
   pinMode(TURN_ENG_PIN2, OUTPUT);
   IMU_setup(); //inicjalizacja IMU
-
-  // zmienne dla startowej odleglosci od scianek labiryntu
-  odlLewoStart = writeValues(pinLewyCzujnik, pinLewyCzujnik);
-  odlPrawoStart = odlLewoStart;
-  // zmienne dla odczytu odleglosci z poprzedniego pola
-  odlLewoPop = odlLewoStart;
-  odlPrawoPop = odlLewoStart;
   
   // obliczenie jednostki pola - 2 * odleglosc od lewej scianki
-  jednostkaPola = 2 * odlLewoStart + grRobota;
+  jednostkaPola = 2 * writeValues(pinLewyCzujnik, pinLewyCzujnik) + grRobota;
   
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
   int j=1;
@@ -764,7 +652,7 @@ void setup() {
     }
     //wywolanie funkcji wybierajacej kierunek ruchu dla algorytmu eksploracyjnego (doglebnego przeszukiwania)
     int kierunek=sprawdzenie(aktpole);
-    //mapowanie odbywa się na kazdym polu w fazie badania
+    //mapowanie odbywa się na kazdym pole w fazie badania
     //takie dzialanie pozwoli na szybsze wprowadzenie optymalizacji trasy
     //gdy odbywa się to juz w fazie eksploracji
     mapuj(konfiguracja,aktpole);
@@ -808,16 +696,16 @@ void loop() {
   if (Serial.available()) {
     z = Serial.read();
       switch(z) {
-              case '1':
+              case 'n':
                 ruch(konfiguracja,1,aktpole);
               break;
-              case '2':
+              case 'e':
                 ruch(konfiguracja,2,aktpole);
               break;
-              case '3':
+              case 'w':
                 ruch(konfiguracja,kierunek,aktpole);
               break;
-              case '4':
+              case 's':
                 ruch(konfiguracja,kierunek,aktpole);
               break;
           }
