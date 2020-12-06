@@ -22,7 +22,7 @@ int waga[255];
 int tablica[255];
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl=15;
-//zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
+//zmienna pozwalajaca na realizacje odbierania informacji o sterowaniu ręcznym WiFi
 char z;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
 
@@ -117,6 +117,7 @@ void pomiar(int konfiguracja, int i){
     n[i]=0;
     if(i>=(x-1)*y && i<=x*y-1);
     else s[i+y]=0;
+    if(i==pozKoncowa) n[1]=1;
   }
   if(sensor2==1){
     e[i]=1;
@@ -127,6 +128,7 @@ void pomiar(int konfiguracja, int i){
     e[i]=0;
     if((i+1)%y==0);
     else w[i+1]=0;
+    if(i==pozKoncowa) e[1]=1;
   }
   if(sensor3==1){
     s[i]=1;
@@ -337,7 +339,8 @@ void sciezka(){
   i++;
   while(pozycja!=poleStart){
     //wpisujemy do tablicy pole, gdzie mozliwy jest ruch o najmniejszej wadze
-    tablica[i]=sprawdzWagi(aktpole,i);
+    tablica[i]=sprawdzWagi(pozycja,i);
+    pozycja=sprawdzWagi(pozycja,i);
     i++;
   }
 }
@@ -501,7 +504,7 @@ void setup() {
     //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
     for(int l;aktpole!=pozKoncowa;l++){
       //sprawdzamy jakie jest nastepne pole do ktorego chcemy sie poruszyc
-      nastpole=tablica[l];
+      nastpole=tablica[sizeof(tablica)-l];
       //sprawdzamy jaki jest kierunek na podstawie pola aktualnego i pola docelowego
       kierunek=getKierunek(aktpole,nastpole);
       //jest wykonywany ruch na pole docelowe
