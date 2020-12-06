@@ -515,16 +515,16 @@ void loop() {
   if (Serial.available()) {
     z = Serial.read();
       switch(z) {
-              case '1':
+              case 'n':
                 ruch(konfiguracja,1,aktpole);
               break;
-              case '2':
+              case 'e':
                 ruch(konfiguracja,2,aktpole);
               break;
-              case '3':
+              case 'w':
                 ruch(konfiguracja,3,aktpole);
               break;
-              case '4':
+              case 's':
                 ruch(konfiguracja,4,aktpole);
               break;
           }

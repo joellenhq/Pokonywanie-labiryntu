@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+
+<head>
+<meta charset="utf-8">
+<title>Sterowanie robotem z pomocą modułu ESP</title>
+<script type="text/javascript">
+
+
+function sendChar(wiadomosc){
+ 
+ document.getElementById("wynik").innerHTML=wiadomosc;
+
+}
+
+</script>
+<style>
+	body{
+	margin:0;
+	background-color: darkgreen;
+	font-family: 'Lobster', sans-serif;
+	font-size: 30px;
+	color: white;
+	-webkit-user-select: none;  
+	-moz-user-select: none;     
+	-ms-user-select: none;      
+	user-select: none; 
+	
+}
+
+h1{
+	font-size: 30px;
+	font-weight: 400;
+	text-align: center;
+	letter-spacing: 5px;
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+
+.przyciski{
+	width: 600px;
+	height: 470px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.btn{
+	width: 150px;
+	height: 150px;
+	display: inline-block;
+	margin: 3px;
+	border: 4px solid green;
+	border-radius: 6px;
+	cursor: pointer;
+	filter: brightness(70%);
+	transition: all .3s ease-in-out;
+	background-color: purple;
+	vertical-align: middle;
+	font-size:50px;
+	padding: 10px;
+	
+	}
+	
+.notbtn{
+	width: 150px;
+	height: 150px;
+	display: inline-block;
+	margin: 3px;
+	}
+	
+.btn:hover{
+	border: 4px solid white;
+	filter: brightness(100%);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<center><h1>Połączenie z Arduino</h1><center>
+<br>
+<center><div class="connection">Przyciski pozwalają na sterowanie robotem<div><center>
+<br>
+<div class="przyciski">
+	
+	<div class="notbtn" id="a0"></div>
+	<div class="btn" id="b0" onclick="sendChar('n')">Up</div>
+	<div class="notbtn" id="a1"></div>
+	<div class="btn" id="b1" onclick="sendChar('e')">Left</div>
+	<div class="btn" id="b2" onclick="sendChar('s')">Down</div>
+	<div class="btn" id="b3" onclick="sendChar('w')">Right</div>
+	<br>
+	<div class="serial" id="wynik"></div>
+	
+	
+</div>
+
+
+
+</body>
+
+
+</html>
