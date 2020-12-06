@@ -33,7 +33,9 @@ THE SOFTWARE.
 #define SAMPLE_TIME_YAW_PD 1000 //czas próbkowania w ms regulatora PD do skręcania
 #define TURN_REG_P 1.0 //wzmocnienie P regulatora PD regulującego orientację 
 #define TURN_REG_D 0.01 //czas różniczkowania regulatora PD regulującego orientację 
-
+#define SAMPLE_TIME_PROSTO_PD 1000
+#define PROSTO_REG_P 1.0
+#define PROSTO_REG_D 0.01
 MPU6050 IMU;  //deklaracja obiektu reprezentującego układ MPU6050
 
 
@@ -75,10 +77,13 @@ int waga[255];
 int tablica[255];
 int tablica2[255]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
-int maxOdl=15;
-//zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
+int maxOdl;
+//zmienna pozwalajaca na realizacje odbierania informacji o sterowaniu ręcznym WiFi
 char z;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
+
+int spd1=100;
+int bladCzujnika=2100;
 
 void prosto(int spd){  //funkcja do jazdy prosto
   //jazda do przodu
@@ -104,8 +109,8 @@ void tyl(int spd){
   // IN PROGESS
   //jazda do tyłu
   //ustawienie prędkości silnika do jazdy przód/tył
-  float odlLewoCurr = writeValues(pinLewoCzujnik, pinLewoCzujnik);
-  float odlPrawoCurr = writeValues(pinPrawoCzujnik, pinPrawoCzujnik);
+  float odlLewoCurr = writeValues(pinLewyCzujnik, pinLewyCzujnik);
+  float odlPrawoCurr = writeValues(pinPrawyCzujnik, pinPrawyCzujnik);
   if(odlLewoCurr > odlPrawoCurr){
     lewo();
     lewo();
@@ -114,7 +119,7 @@ void tyl(int spd){
     prawo();
     prawo();
   }
-  prosto(100);
+  prosto(spd1);
 }
 void lewo(){  //funkcja do skrętu w lewo
   bool dir=false;
@@ -196,7 +201,7 @@ void poprawPozycje(int kierunek){
   }
   // po zakrecie resetowanie odleglosci poprzedniej od scianki do wartosci poczatkowej
   else{
-    odlLewoPop = odkLewoStart;
+    odlLewoPop = odlLewoStart;
     odlPrawoPop = odlPrawoStart;
   }
 }
@@ -374,7 +379,7 @@ void pomiar(int konfiguracja, int i){
   }
     
   
-  if(sensor1<maxOdl){ 
+  if(sensor1<maxOdl || sensor1>bladCzujnika){ 
     //wartosc 0 oznacza, ze mozliwy jest ruch w tamtym kierunku (nie ma sciany), a 1 oznacza przeszkode 
     n[i]=1;
     //jesli sciana znajduje sie po jednej stronie komorki to odpowiednio po drugiej stronie sciany jest inna komorka 
@@ -386,18 +391,21 @@ void pomiar(int konfiguracja, int i){
     n[i]=0;
     if(i>=(x-1)*y && i<=x*y-1);
     else s[i+y]=0;
+    if(i==pozKoncowa) n[1]=1;
   }
-  if(sensor2<maxOdl){
+  if(sensor2<maxOdl || sensor2>bladCzujnika){
     e[i]=1;
     if((i+1)%y==0);
     else w[i+1]=1;
+    
   }
   else{
     e[i]=0;
     if((i+1)%y==0);
     else w[i+1]=0;
+    if(i==pozKoncowa) e[1]=1;
   }
-  if(sensor3<maxOdl){
+  if(sensor3<maxOdl || sensor3>bladCzujnika){
     s[i]=1;
     if(i>=0 && i<y);
     else n[i-y]=1;
@@ -408,8 +416,9 @@ void pomiar(int konfiguracja, int i){
     else n[i-y]=0;
     //jesli labirynt jest otwarty na poczatku to niemozliwe ma byc wyjechanie z niego
     if(i==0) s[1]=1;
+    
   }
-  if(sensor4<maxOdl){
+  if(sensor4<maxOdl || sensor4>bladCzujnika){
     w[i]=1;
     if(i%y==0);
     else e[i-1]=1;
@@ -476,24 +485,24 @@ void ruch(int konfiguracja, int kierunek, int i){
   
   if(konfiguracja==0){
     if(kierunek==1){
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole+y;
       konfiguracja=0;
     }
     if(kierunek==2){
       prawo();
-      prosto(100);
+      prosto(spd1);
       aktpole++;
       konfiguracja=90;
     }
     if(kierunek==3){
-      tyl(100);
+      tyl(spd1);
       aktpole=aktpole-y;
       konfiguracja=180; //lub 0
     }
     if(kierunek==4){
       lewo();
-      prosto(100);
+      prosto(spd1);
       aktpole--;
       konfiguracja=270;
     }
@@ -501,47 +510,47 @@ void ruch(int konfiguracja, int kierunek, int i){
   if(konfiguracja==90){
      if(kierunek==1){
       lewo();
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole+y;
       konfiguracja=0;
     }
     if(kierunek==2){
-      prosto(100);
+      prosto(spd1);
       aktpole++;
       konfiguracja=90;
     }
     if(kierunek==3){
       prawo();
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole-y;
       konfiguracja=180;
     }
     if(kierunek==4){
-      tyl(100);
+      tyl(spd1);
       aktpole--;
       konfiguracja=270; //lub 90
     }
   }
   if(konfiguracja ==180){
      if(kierunek==1){
-      tyl(100);
+      tyl(spd1);
       aktpole=aktpole+y;
       konfiguracja=0; //lub 180
     }
     if(kierunek==2){
       lewo();
-      prosto(100);
+      prosto(spd1);
       aktpole++;
       konfiguracja=90;
     }
     if(kierunek==3){
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole-y;
       konfiguracja=180;
     }
     if(kierunek==4){
       prawo();
-      prosto(100);
+      prosto(spd1);
       aktpole--;
       konfiguracja=270;
     }
@@ -549,23 +558,23 @@ void ruch(int konfiguracja, int kierunek, int i){
   if(konfiguracja ==270){
      if(kierunek==1){
       prawo();
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole+y;
       konfiguracja=0;
     }
     if(kierunek==2){
-      tyl(100);
+      tyl(spd1);
       aktpole++;
       konfiguracja=90; //lub 270
     }
     if(kierunek==3){
       lewo();
-      prosto(100);
+      prosto(spd1);
       aktpole=aktpole-y;
       konfiguracja=180;
     }
     if(kierunek==4){
-      prosto(100);
+      prosto(spd1);
       aktpole--;
       konfiguracja=270;
     }
@@ -614,7 +623,8 @@ void sciezka(){
   i++;
   while(pozycja!=poleStart){
     //wpisujemy do tablicy pole, gdzie mozliwy jest ruch o najmniejszej wadze
-    tablica[i]=sprawdzWagi(aktpole,i);
+    tablica[i]=sprawdzWagi(pozycja,i);
+    pozycja=sprawdzWagi(pozycja,i);
     i++;
   }
 }
@@ -729,6 +739,7 @@ void setup() {
   
   // obliczenie jednostki pola - 2 * odleglosc od lewej scianki
   jednostkaPola = 2 * odlLewoStart + grRobota;
+  maxOdl=jednostkaPola-grRobota;
   
   //zmienna, ktora posluzy do zbadania czy wszystkie pola zostały sprawdzone
   int j=1;
@@ -794,7 +805,7 @@ void setup() {
     //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
     for(int l;aktpole!=pozKoncowa;l++){
       //sprawdzamy jakie jest nastepne pole do ktorego chcemy sie poruszyc
-      nastpole=tablica[l];
+      nastpole=tablica[sizeof(tablica)-l];
       //sprawdzamy jaki jest kierunek na podstawie pola aktualnego i pola docelowego
       kierunek=getKierunek(aktpole,nastpole);
       //jest wykonywany ruch na pole docelowe
