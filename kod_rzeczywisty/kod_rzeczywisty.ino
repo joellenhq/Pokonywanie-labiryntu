@@ -74,7 +74,7 @@ int waga[255];
 int tablica[255];
 int tablica2[255]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
-int maxOdl=15;
+int maxOdl;
 //zmienna pozwalajaca na realizacje odbierania informacji o przycisku na bluetooth
 char z;
 //zalozenie, ze zaczynamy w lewym dolnym rogu, konczymy w prawym gornym
