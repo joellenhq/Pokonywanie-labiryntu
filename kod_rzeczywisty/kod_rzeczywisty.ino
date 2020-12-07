@@ -64,20 +64,20 @@ int pozKoncowa=x*y-1;
 int poleStart=0;
 int aktpole=0; 
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
-boolean n[255],e[255],s[255],w[255];
+boolean n[960],e[960],s[960],w[960];
 //byte kierunki[255];
 //zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
-boolean pole[255];
+boolean pole[960];
 //poczatkowe ustawienie robota (orientacja w terenie) to 0 stopni (robot ustawiony w kierunku N labiryntu
 int konfiguracja=0;
 //kierunek ruchu
 int kierunek;
 //tablica, do ktorej zostana wpisane pola, po ktorych robot ma sie poruszac podczas algorytmu zoptymalizowanego 
-int polaRuchu[255];
+int polaRuchu[960];
 //tablica, do ktorej wpisywane sa wagi pol wg przyspieszonego algorytmu propagacji fali
-int waga[255];
-int tablica[255];
-int tablica2[255]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
+int waga[960];
+int tablica[960];
+int tablica2[960]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl;
 //zmienna pozwalajaca na realizacje odbierania informacji o sterowaniu ręcznym WiFi
@@ -86,6 +86,7 @@ char z;
 
 int spd1=100;
 int bladCzujnika=2100;
+int dlugoscSciezki=0;
 
 void prosto(int spd){  //funkcja do jazdy prosto
   //jazda do przodu
@@ -601,15 +602,15 @@ int wagi(int orientacja, int i){
 
 //funkcja wybierajaca zooptymalizowana sciezke
 void sciezka(){
-  int i=0;
-  tablica[i]=pozKoncowa;
+  
+  tablica[dlugoscSciezki]=pozKoncowa;
   int pozycja=pozKoncowa;
-  i++;
+  dlugoscSciezki++;
   while(pozycja!=poleStart){
     //wpisujemy do tablicy pole, gdzie mozliwy jest ruch o najmniejszej wadze
-    tablica[i]=sprawdzWagi(pozycja,i);
-    pozycja=sprawdzWagi(pozycja,i);
-    i++;
+    tablica[dlugoscSciezki]=sprawdzWagi(pozycja,dlugoscSciezki);
+    pozycja=sprawdzWagi(pozycja,dlugoscSciezki);
+    dlugoscSciezki++;
   }
 }
 
@@ -732,7 +733,7 @@ void setup() {
   int j=1;
   
   //wpisanie da tablicy waga duzych wartosci
-  for(int k=0; k<=sizeof(waga);k++){
+  for(int k=0; k<=pozKoncowa;k++){
     waga[k]=pozKoncowa+1;
   }
   //nadanie polu poczatkowemu wagi 1
@@ -774,7 +775,7 @@ void setup() {
     //ustawienie licznika niezbadanych pol na zero
     j=0;
     //sprawdzenie ile pol zostalo niezbadanych
-    for(int k=0;k<255;k++){
+    for(int k=0;k<pozKoncowa;k++){
       if(pole[k]==0) j++;  
     }
   }
@@ -795,7 +796,7 @@ void setup() {
     //poruszanie sie po optymalnej trasie bedzie sie wykonywalo dopoki nie zostanie osiagnieta pozycja koncowa
     for(int l;aktpole!=pozKoncowa;l++){
       //sprawdzamy jakie jest nastepne pole do ktorego chcemy sie poruszyc
-      nastpole=tablica[sizeof(tablica)-l];
+      nastpole=tablica[dlugoscSciezki-l];
       //sprawdzamy jaki jest kierunek na podstawie pola aktualnego i pola docelowego
       kierunek=getKierunek(aktpole,nastpole);
       //jest wykonywany ruch na pole docelowe
