@@ -276,8 +276,11 @@ float get_yaw() {  //funkcja odczytu danych z IMU(zwraca wartość yaw w zakresi
 }
 
 void error(char* msg){
-  //kod do obsługi błedów tutaj
+  //kod do obsługi błedów
+  kolizja=1;
+  
 }
+
 // Odczyt z czujnikow
 // funkcja odczytujaca czas przebiegu fali dzwiekowej czujnika
 long readUltrasonicDistance(int triggerPin, int echoPin)
