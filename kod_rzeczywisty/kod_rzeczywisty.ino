@@ -64,20 +64,20 @@ int pozKoncowa=x*y-1;
 int poleStart=0;
 int aktpole=0; 
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
-boolean n[960],e[960],s[960],w[960];
+boolean n[300],e[300],s[300],w[300];
 //byte kierunki[255];
 //zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
-boolean pole[960];
+boolean pole[300];
 //poczatkowe ustawienie robota (orientacja w terenie) to 0 stopni (robot ustawiony w kierunku N labiryntu
 int konfiguracja=0;
 //kierunek ruchu
 int kierunek;
 //tablica, do ktorej zostana wpisane pola, po ktorych robot ma sie poruszac podczas algorytmu zoptymalizowanego 
-int polaRuchu[960];
+int polaRuchu[300];
 //tablica, do ktorej wpisywane sa wagi pol wg przyspieszonego algorytmu propagacji fali
-int waga[960];
-int tablica[960];
-int tablica2[960]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
+int waga[300];
+int tablica[300];
+int tablica2[300]; //tablica odpowiadajaca za inna orientacje robota w pozycji poczatkowej
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl;
 //zmienna pozwalajaca na realizacje odbierania informacji o sterowaniu ręcznym WiFi

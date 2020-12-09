@@ -7,19 +7,19 @@ int pozKoncowa=x*y-1;
 int poleStart=0;
 int aktpole=0; 
 //tablice pozwalajace okreslic polozenie scian wokol kazdego pola
-boolean n[960],e[960],s[960],w[960];
+boolean n[400],e[400],s[400],w[400];
 //byte kierunki[255];
 //zdefiniowanie tablicy, ktora bedzie zawierac wszystkie pola
-boolean pole[960];
+boolean pole[400];
 //poczatkowe ustawienie robota (orientacja w terenie) to 0 stopni (robot ustawiony w kierunku N labiryntu
 int konfiguracja=0;
 //kierunek ruchu
 int kierunek;
 //tablica, do ktorej zostana wpisane pola, po ktorych robot ma sie poruszac podczas algorytmu zoptymalizowanego 
-int polaRuchu[960];
+int polaRuchu[400];
 //tablica, do ktorej wpisywane sa wagi pol wg przyspieszonego algorytmu propagacji fali
-int waga[960];
-int tablica[960];
+int waga[400];
+int tablica[400];
 //zmienna okreslajaca granice okreslajaca czy sciana jest w obrebie aktualnego pola
 int maxOdl;
 //zmienna pozwalajaca na realizacje odbierania informacji o sterowaniu ręcznym WiFi
@@ -29,56 +29,59 @@ char z;
 int spd1=100;
 int bladCzujnika=2100;
 int dlugoscSciezki=0;
+int s1,s2,s3,s4;
 
-void fileWrite(int kierunek){
+void fileWrite(char kierunekChar){
   //musze sie jeszcze zastanowic nad tymi plikami i komunikacja po serialu
   if (Serial.available()) {
-    Serial.write(kierunek);
+    Serial.write(kierunekChar);
   }
 }
 
 void lewo(){
-  fileWrite(2);
+  fileWrite("d");
 }
 void prawo(){
-  fileWrite(4);
+  fileWrite("b");
 }
 void prosto(){
-  fileWrite(1);
+  fileWrite("a");
 }
 
 void tyl(){
-  fileWrite(3);
+  fileWrite("d");
 }
 
-void fileRead(char scianaKierunek){
+void fileRead(int obecnepole){
   //wtedy trzeba by odebrac wart pola, znalezc w tablicy wartosc i zwrocic wartosc 0 lub 1
   if (Serial.available()) {
-    Serial.write(aktpole, scianaKierunek);
-    char sciana01 = Serial.parseInt();
-    return sciana01;
+    Serial.write(obecnepole);
+    s1=Serial.parseInt();
+    s2=Serial.parseInt();
+    s3=Serial.parseInt();
+    s4=Serial.parseInt();
   }
 }
 
 float czujnik1(){
   //przod robota (wedlug jego lokalnego ukladu wspolrzednych)
-  fileRead("a");
+  return s1;
 }
 float czujnik2(){
   //prawa strona robota (wedlug jego lokalnego ukladu wspolrzednych)
-  fileRead("b");
+  return s2;
 }
 float czujnik3(){
-  return 0;  
+  return s3; 
 }
 float czujnik4(){
   //lewa strona robota (wedlug jego lokalnego ukladu wspolrzednych)
-  fileRead("d");
+  return s4;
 }
 
 //funkcja pozwala na dokonanie pomiaru otoczenia, a takze tworzy mape (w postaci tablicy)
 void pomiar(int konfiguracja, int i){
-  
+  fileRead(i);
   int sensor1;
   int sensor2;;
   int sensor3;
@@ -494,7 +497,7 @@ void setup() {
   }
   //po zakonczeniu algorytmu robot powinien ustawic sie na pole startowe
   aktpole=0;
-  orientacja=0;
+  konfiguracja=0;
 
   //wpisanie do tablic z wagami najwiekszej mozliwej wartosci
   for(int i=0;i<=pozKoncowa;i++){
