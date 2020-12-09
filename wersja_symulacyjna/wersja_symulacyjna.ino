@@ -56,10 +56,10 @@ void fileRead(int obecnepole){
   //wtedy trzeba by odebrac wart pola, znalezc w tablicy wartosc i zwrocic wartosc 0 lub 1
   if (Serial.available()) {
     Serial.write(obecnepole);
+    s4=Serial.parseInt();
+    s3=Serial.parseInt();
     s1=Serial.parseInt();
     s2=Serial.parseInt();
-    s3=Serial.parseInt();
-    s4=Serial.parseInt();
   }
 }
 
