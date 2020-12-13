@@ -101,20 +101,18 @@ void prosto(int spd){  //funkcja do jazdy prosto
 
     prev_reg_time=current_time; //zapis ostatniego czasu przeliczenia sygnału sterującego
     int spd_reg = (int)PD_reg(PROSTO_REG_P, PROSTO_REG_D, currentDist, startDist - jednostkaPola, prev_error); //wyznaczenie sygnału sterującego
-    prev_error=startDist - jednostkaPola - currentDist;
-    spd_reg = constrain(spd_reg, -spd, spd);
-    set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, -spd_reg);
-    poprawPozycje();
+    prev_error=startDist - jednostkaPola - currentDist;   //zapis poprzedniego uchybu
+    spd_reg = constrain(spd_reg, -spd, spd);  //ograniczenie prędkości silnika
+    set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, -spd_reg); //ustawienie prędkości silnika
+    poprawPozycje();  //korekta odległości od ścian bocznych
     if(kolizja == 1){ //jesli jest kolizja - natychmiastowe zakonczenie jazdy
       break;  
     }  
   }while(abs(prev_error)>=1);
-  set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, 0);
+  set_motor_spd(DRIVE_ENG_PIN1,DRIVE_ENG_PIN2, 0);  //zatrzymanie silnika
 }
 void tyl(int spd){
-  // IN PROGESS
-  //jazda do tyłu
-  //ustawienie prędkości silnika do jazdy przód/tył
+  //jazda do tylu(obrót o 180 stopni i jazda do przodu)
   float odlLewoCurr = writeValues(pinLewyCzujnik, pinLewyCzujnik);
   float odlPrawoCurr = writeValues(pinPrawyCzujnik, pinPrawyCzujnik);
   if(odlLewoCurr > odlPrawoCurr){
@@ -132,28 +130,24 @@ void lewo(){  //funkcja do skrętu w lewo
   yaw=get_yaw();  //odczyt aktualnego kąta yaw
   target_yaw=yaw+90; //ustawienie odpowiedniej orientacji
   rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw+180); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
 }
 void prawo(){
   bool dir=true;
   yaw=get_yaw();  //odczyt aktualnego kąta yaw
   target_yaw=yaw-90; //ustawienie odpowiedniej orientacji
   rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
 }
 void korektaLewo(){ // funkcja do korekty odleglosci od prawej sciany
   bool dir=false;
   yaw=get_yaw();  //odczyt aktualnego kąta yaw
   target_yaw=yaw+1; //ustawienie odpowiedniej orientacji
   rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw+180); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
 }
 void korektaPrawo(){ // funkcja do korekty odleglosci od lewej sciany
   bool dir=true;
   yaw=get_yaw();  //odczyt aktualnego kąta yaw
   target_yaw=yaw-1; //ustawienie odpowiedniej orientacji
   rotate(target_yaw); //ustawienie zadanej orientacji
-  target_yaw=limit_yaw(target_yaw); //przeliczenie (teoretycznego)yaw do odpowiedniego zakresu
 }
 
 // funkcja korygujaca odleglosc od scianek robota
@@ -186,16 +180,6 @@ void poprawPozycje(){
 
 void sprawdzKolizje(){
   kolizja = 1;
-}
-
-float limit_yaw(float yaw_val){ //funkcja ograniczająca (teoretyczny)yaw do zakresu 0 do 360 stopni
-  if(yaw_val<0){ 
-    yaw_val=yaw_val+360;
-  }
-  else if(yaw_val>360){
-    yaw_val=yaw_val-360;
-  }
-  return yaw_val;
 }
 
 void rotate(float target_yaw){    //funkcja służąca ustawiania zadanej orientacji robota
@@ -272,7 +256,8 @@ float get_yaw() {  //funkcja odczytu danych z IMU(zwraca wartość yaw w zakresi
     IMU.dmpGetYawPitchRoll(ypr, &q, &gravity);
     return (ypr[0]*180/M_PI+180);
     }
-    return 400;
+  else
+    error("GetFIFOPacket error"); //wywołanie funkcji do obsługi błędów
 }
 
 void error(char* msg){
@@ -826,8 +811,6 @@ void loop() {
                 ruch(konfiguracja,kierunek,aktpole);
               break;
           }
-          //zamiast switcha
-          //int z1=Serial.parseInt()
-          //ruch(konfiguracja,z1,aktpole);
+          
   }
 }
